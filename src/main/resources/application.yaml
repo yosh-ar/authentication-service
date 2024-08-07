@@ -9,7 +9,7 @@ spring:
     hibernate:
       ddl-auto: create-drop
 jwt:
-  secret: ServiceAuthToken423AS34KS03S3CR3D0QW334
+  secret: ServiceAuthToken423AS34KS03S3CR3D0QW334SDFASDFQ34RW345EW4RTFSE4T5RE45TERTWE45TWE45WERTW345WERTFW45TWE4TWE45TW3
 logging:
     level:
         org:

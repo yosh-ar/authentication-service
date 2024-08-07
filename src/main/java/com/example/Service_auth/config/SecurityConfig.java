@@ -28,19 +28,21 @@ public class SecurityConfig {
 
     public SecurityConfig(UserDetailsServiceImpl userDetailsService, JwtAuthFilter jwtAuthFilter) {
         this.userDetailsService = userDetailsService;
-
         this.jwtAuthFilter = jwtAuthFilter;
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "v1/**").permitAll()
-                                .anyRequest().authenticated())
-                .sessionManagement(sessionManagement ->
-                        sessionManagement
+                .authorizeHttpRequests(request ->
+                        request
+                                .requestMatchers( "/v1/auth/**")
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated()
+                )
+                .sessionManagement(manager ->
+                        manager
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider()).
                 addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

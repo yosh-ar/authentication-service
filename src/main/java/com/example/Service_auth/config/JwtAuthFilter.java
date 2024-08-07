@@ -32,8 +32,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Optional.ofNullable(request.getHeader("Authorization"))
-                .filter(header -> !header.isBlank())
+                .filter(header -> !header.isBlank() && header.startsWith("Bearer "))
                 .map(header -> header.substring(7))
+                .filter(token -> !jwtService.isTokenExpired(token))//antes de extraer el usuario seria mejor verficar que el token aun sea valido
                 .map(jwtService::extractUserId)
                 .flatMap(userId -> userRepository.findById(Long.valueOf(userId)))
                 .ifPresent(user -> {
@@ -44,7 +45,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private void processAuthentication(HttpServletRequest request, UserDetails user) {
-        String jwtToken = request.getHeader("Authorization").substring(7);
+        /*String jwtToken = request.getHeader("Authorization").substring(7);
         Optional.of(jwtToken)
                 .filter(token -> !jwtService.isTokenExpired(token))
                 .ifPresent(jwt -> {
@@ -52,6 +53,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                             null, user.getAuthorities());
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                });
+                });*/
+
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                user, null, user.getAuthorities());
+        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
 }
